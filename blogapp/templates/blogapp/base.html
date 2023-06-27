@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blog Web Application</title>
+    <!-- CSS files -->
+    <!-- you might want to include your CSS files here -->
+</head>
+<body>
+    <header>
+        <h1>Welcome to our Blog!</h1>
+    </header>
+
+    <nav>
+        <a href="{% url 'blog_list' %}">Home</a> |
+        <!-- Add more navigation links here -->
+    </nav>
+
+    <main>
+        {% block content %}
+        <!-- Content block will be overwritten by each page -->
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>Blog Web Application © 2023</p>
+    </footer>
+
+    <!-- JavaScript files -->
+    <!-- you might want to include your JavaScript files here -->
+</body>
+</html>
