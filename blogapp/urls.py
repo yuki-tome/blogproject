@@ -12,4 +12,5 @@ urlpatterns = [
     path('posts/<int:year>/<int:month>/<int:day>/', views.posts_on_date, name='posts_on_date'),
     path('calendar/', views.calendar_view, name='calendar_current'),
     path('calendar/<int:year>/<int:month>/', views.calendar_view, name='calendar'),
+    path('search/', views.blog_search, name='blog_search'),
 ]

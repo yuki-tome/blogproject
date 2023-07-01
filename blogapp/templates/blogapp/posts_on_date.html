@@ -9,7 +9,7 @@
 
 {% block content %}
   <div class="container">
-    <h1 class="my-4">Posts on {{ date }}</h1>
+    <h1 class="my-4">Posts on {{ year }}/ {{ month }}/ {{ day }}</h1>
     <div class="row">
       <div class="col-md-8">
         {% for post in posts %}
@@ -26,6 +26,18 @@
         {% empty %}
           <p class="text-muted">No posts on this date.</p>
         {% endfor %}
+      </div>
+      <div class="col-md-4">
+        <div class="card my-4">
+          <h5 class="card-header">Authors</h5>
+          <div class="card-body">
+            <ul class="list-unstyled mb-0">
+              {% for author in authors %}
+                <li><a href="{% url 'author_posts' author.id %}">{{ author.user.username }}</a> ({{ author.num_posts }} posts)</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   </div>

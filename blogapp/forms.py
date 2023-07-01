@@ -5,3 +5,6 @@ class BlogPostForm(forms.ModelForm):
     class Meta:
         model = BlogPost
         fields = ['title', 'content']
+
+class BlogSearchForm(forms.Form):
+    search_word = forms.CharField(label='Search Word')
