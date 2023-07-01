@@ -7,12 +7,28 @@ from .forms import BlogPostForm
 from django.db.models import Count, Q
 from datetime import datetime, date
 import calendar
-from .forms import BlogSearchForm
+from django.core.paginator import Paginator
+
+""" def blog_list(request):
+    posts = BlogPost.objects.all().order_by('-date')
+    authors = Author.objects.annotate(num_posts=Count('blogpost'))
+    return render(request, 'blogapp/blog_list.html', {'posts': posts, 'authors': authors}) """
 
 def blog_list(request):
     posts = BlogPost.objects.all().order_by('-date')
     authors = Author.objects.annotate(num_posts=Count('blogpost'))
-    return render(request, 'blogapp/blog_list.html', {'posts': posts, 'authors': authors})
+    
+    # Create a Paginator object
+    paginator = Paginator(posts, 5) # Show 10 posts per page
+
+    # Get the page number from the query string
+    # (if not provided, get the first page)
+    page_number = request.GET.get('page') or 1
+
+    # Get the Page object for this page
+    page = paginator.get_page(page_number)
+
+    return render(request, 'blogapp/blog_list.html', {'page': page, 'authors': authors})
 
 def blog_search(request):
     search_word = request.GET.get('search_word', '')
@@ -77,11 +93,12 @@ def author_posts(request, author_id):
     posts = BlogPost.objects.filter(author=author)
     # 他の著者を取得します。
     other_authors = Author.objects.exclude(id=author_id)
+    num_other_authors = other_authors.annotate(num_posts=Count('blogpost'))
 
     context = {
         'author': author,
         'posts': posts,
-        'other_authors': other_authors,
+        'other_authors': num_other_authors,
     }
     
     return render(request, 'blogapp/author_posts.html', context)
