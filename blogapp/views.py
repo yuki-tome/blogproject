@@ -94,4 +94,13 @@ def blog_post_create(request):
 def author_posts(request, author_id):
     author = get_object_or_404(Author, pk=author_id)
     posts = BlogPost.objects.filter(author=author)
-    return render(request, 'blogapp/author_posts.html', {'author': author, 'posts': posts})
+    # 他の著者を取得します。
+    other_authors = Author.objects.exclude(id=author_id)
+
+    context = {
+        'author': author,
+        'posts': posts,
+        'other_authors': other_authors,
+    }
+    
+    return render(request, 'blogapp/author_posts.html', context)
