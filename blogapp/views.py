@@ -88,7 +88,7 @@ def blog_post_create(request):
         form = BlogPostForm()
     return render(request, 'blogapp/blog_post_form.html', {'form': form})
 
-def author_posts(request, author_id):
+""" def author_posts(request, author_id):
     author = get_object_or_404(Author, pk=author_id)
     posts = BlogPost.objects.filter(author=author)
     # 他の著者を取得します。
@@ -99,6 +99,25 @@ def author_posts(request, author_id):
         'author': author,
         'posts': posts,
         'other_authors': num_other_authors,
+    }
+    
+    return render(request, 'blogapp/author_posts.html', context) """
+
+def author_posts(request, author_id):
+    author = get_object_or_404(Author, pk=author_id)
+    posts = BlogPost.objects.filter(author=author)
+    # 他の著者を取得します。
+    other_authors = Author.objects.exclude(id=author_id).annotate(num_posts=Count('blogpost'))
+
+    # Paginator を使って投稿をページネーションします。
+    paginator = Paginator(posts, 5) # Show 10 posts per page
+    page_number = request.GET.get('page') or 1
+    page = paginator.get_page(page_number)
+
+    context = {
+        'author': author,
+        'page': page, # ここで投稿のページを渡します。
+        'other_authors': other_authors,
     }
     
     return render(request, 'blogapp/author_posts.html', context)
