@@ -9,4 +9,7 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('create/', views.blog_post_create, name='blog_post_create'),
     path('author/<int:author_id>/', views.author_posts, name='author_posts'),
+    path('posts/<int:year>/<int:month>/<int:day>/', views.posts_on_date, name='posts_on_date'),
+    path('calendar/', views.calendar_view, name='calendar_current'),
+    path('calendar/<int:year>/<int:month>/', views.calendar_view, name='calendar'),
 ]

@@ -2,15 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import BlogPost, Author
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.http import HttpResponse
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from .forms import BlogPostForm
 from django.db.models import Count
-from django.contrib.auth.models import User
-
-""" def blog_list(request):
-    posts = BlogPost.objects.all()
-    return render(request, 'blogapp/blog_list.html', {'posts': posts}) """
+from datetime import datetime
+import calendar
 
 def blog_list(request):
     posts = BlogPost.objects.all().order_by('-date')
@@ -20,20 +16,6 @@ def blog_list(request):
 def blog_detail(request, pk):
     post = BlogPost.objects.get(pk=pk)
     return render(request, 'blogapp/blog_detail.html', {'post': post})
-
-""" def login_view(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return HttpResponse("User logged in")
-        else:
-            return HttpResponse("Invalid credentials")
-    else:
-        form = AuthenticationForm()  # フォームのインスタンスを作成
-        return render(request, 'blogapp/login.html', {'form': form})  # フォームをテンプレートに渡す """
 
 def login_view(request):
     if request.method == 'POST':
@@ -53,7 +35,7 @@ def logout_view(request):
         logout(request)
         return redirect('login')
     else:
-        return render(request, 'blogapp/logout_confirmation.html')
+        return render(request, 'blogapp/logout.html')
     
 def register(request):
     if request.method == "POST":
@@ -66,18 +48,6 @@ def register(request):
     else:
         form = UserCreationForm()
     return render(request, 'blogapp/register.html', {'form': form})
-
-""" def blog_post_create(request):
-    if request.method == "POST":
-        form = BlogPostForm(request.POST)
-        if form.is_valid():
-            blog_post = form.save(commit=False)
-            blog_post.author = Author.objects.get(user=request.user)
-            blog_post.save()
-            return redirect('blog_list')
-    else:
-        form = BlogPostForm()
-    return render(request, 'blogapp/blog_post_form.html', {'form': form}) """
 
 def blog_post_create(request):
     if request.method == 'POST':
@@ -104,3 +74,47 @@ def author_posts(request, author_id):
     }
     
     return render(request, 'blogapp/author_posts.html', context)
+
+
+def posts_on_date(request, year, month, day):
+    posts = BlogPost.objects.filter(
+        date__year=year,
+        date__month=month,
+        date__day=day,
+    )
+    return render(request, 'blogapp/posts_on_date.html', {'posts': posts})
+
+def calendar_view(request, year=None, month=None):
+    if year is None or month is None:
+        now = datetime.now()
+        year = now.year
+        month = now.month
+    month_days = calendar.monthcalendar(year, month)
+
+    if month == 1:
+        prev_year, prev_month = year - 1, 12
+    else:
+        prev_year, prev_month = year, month - 1
+
+    if month == 12:
+        next_year, next_month = year + 1, 1
+    else:
+        next_year, next_month = year, month + 1
+
+    # Handle previous and next year
+    prev_year = year - 1
+    next_year = year + 1
+
+    context = {
+        'year': year,
+        'month': month,
+        'month_days': month_days,
+        'prev_year': prev_year,
+        'prev_month': prev_month,
+        'next_year': next_year,
+        'next_month': next_month,
+        'prev_year': prev_year,
+        'next_year': next_year,
+    }
+
+    return render(request, 'blogapp/calendar.html', context)

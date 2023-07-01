@@ -1,0 +1,32 @@
+{% extends 'blogapp/base.html' %}
+
+{% load static %} <!-- This will be used to load static files like CSS -->
+
+{% block extra_css %}
+  <!-- Include Bootstrap CSS -->
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <h1 class="my-4">Posts on {{ date }}</h1>
+    <div class="row">
+      <div class="col-md-8">
+        {% for post in posts %}
+          <div class="card mb-4">
+            <div class="card-body">
+              <h2 class="card-title"><a href="{% url 'blog_detail' post.pk %}" class="text-decoration-none">{{ post.title }}</a></h2>
+              <p class="card-text">{{ post.content|truncatewords:30 }}</p>
+              <a href="{% url 'blog_detail' post.pk %}" class="btn btn-primary">Read More &rarr;</a>
+            </div>
+            <div class="card-footer text-muted">
+              Written by {{ post.author.user.username }} on {{ post.date }}
+            </div>
+          </div>
+        {% empty %}
+          <p class="text-muted">No posts on this date.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

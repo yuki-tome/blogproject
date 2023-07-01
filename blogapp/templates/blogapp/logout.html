@@ -1,6 +1,29 @@
 {% extends "blogapp/base.html" %}
 
+{% load static %}
+
+{% block extra_css %}
+  <!-- Include Bootstrap CSS -->
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+{% endblock %}
+
 {% block content %}
-  <h2>Logout</h2>
-  <p>You have been logged out. Click <a href="{% url 'login' %}">here</a> to login again.</p>
+  <div class="container">
+    <div class="row justify-content-center align-items-center vh-100">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <h2 class="card-title text-center">Ready to leave?</h2>
+            <p class="card-text text-center">If you're sure, just click the button below. We hope to see you again soon!</p>
+            <form method="post" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <div class="d-grid gap-2 mt-3">
+                <button type="submit" class="btn btn-primary">Logout</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
