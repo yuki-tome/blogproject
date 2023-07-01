@@ -10,8 +10,8 @@
       <a href="{% url 'calendar' next_year month %}" class="float-end">Next Year </a>
     </div>
     <div class="mb-3">
-      <a href="{% url 'calendar' prev_year prev_month %}">Previous Month</a>
-      <a href="{% url 'calendar' next_year next_month %}" class="float-end">Next Month</a>
+      <a href="{% url 'calendar' year prev_month %}">Previous Month</a>
+      <a href="{% url 'calendar' year next_month %}" class="float-end">Next Month</a>
     </div>
 
     <table class="table table-bordered">
@@ -30,11 +30,15 @@
         {% for week in month_days %}
         <tr>
           {% for day in week %}
-          <td>
-            {% if day != 0 %}
-            <a href="{% url 'posts_on_date' year month day %}">{{ day }}</a>
-            {% endif %}
-          </td>
+            <td>
+              {% if day != 0 %}
+                {% if day in days_with_posts %}
+                  <a href="{% url 'posts_on_date' year month day %}">{{ day }}</a>
+                {% else %}
+                  {{ day }}
+                {% endif %}
+              {% endif %}
+            </td>
           {% endfor %}
         </tr>
         {% endfor %}

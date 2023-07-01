@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from .forms import BlogPostForm
 from django.db.models import Count, Q
-from datetime import datetime
+from datetime import datetime, date
 import calendar
 from .forms import BlogSearchForm
 
@@ -105,7 +105,7 @@ def posts_on_date(request, year, month, day):
 
     return render(request, 'blogapp/posts_on_date.html', context)
 
-def calendar_view(request, year=None, month=None):
+""" def calendar_view(request, year=None, month=None):
     if year is None or month is None:
         now = datetime.now()
         year = now.year
@@ -138,4 +138,52 @@ def calendar_view(request, year=None, month=None):
         'next_year': next_year,
     }
 
+    return render(request, 'blogapp/calendar.html', context) """
+
+def calendar_view(request, year=None, month=None):
+    if year is None or month is None:
+        now = datetime.now()
+        year = now.year
+        month = now.month
+    month_days = calendar.monthcalendar(year, month)
+
+    if month == 1:
+        prev_year, prev_month = year - 1, 12
+    else:
+        prev_year, prev_month = year, month - 1
+
+    if month == 12:
+        next_year, next_month = year + 1, 1
+    else:
+        next_year, next_month = year, month + 1
+
+    # Handle previous and next year
+    prev_year = year - 1
+    next_year = year + 1
+
+    # Check each day for posts
+    days_with_posts = {}
+    for week in month_days:
+        for day in week:
+            if day != 0:  # Exclude zero (no day)
+                date_obj = date(year, month, day)
+                if BlogPost.objects.filter(date__year=date_obj.year,
+                                           date__month=date_obj.month,
+                                           date__day=date_obj.day).exists():
+                    days_with_posts[day] = True
+
+    context = {
+        'year': year,
+        'month': month,
+        'month_days': month_days,
+        'prev_year': prev_year,
+        'prev_month': prev_month,
+        'next_year': next_year,
+        'next_month': next_month,
+        'prev_year': prev_year,
+        'next_year': next_year,
+        'days_with_posts': days_with_posts,
+    }
+
     return render(request, 'blogapp/calendar.html', context)
+
