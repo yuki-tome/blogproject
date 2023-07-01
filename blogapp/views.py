@@ -9,11 +9,6 @@ from datetime import datetime, date
 import calendar
 from django.core.paginator import Paginator
 
-""" def blog_list(request):
-    posts = BlogPost.objects.all().order_by('-date')
-    authors = Author.objects.annotate(num_posts=Count('blogpost'))
-    return render(request, 'blogapp/blog_list.html', {'posts': posts, 'authors': authors}) """
-
 def blog_list(request):
     posts = BlogPost.objects.all().order_by('-date')
     authors = Author.objects.annotate(num_posts=Count('blogpost'))
@@ -30,7 +25,7 @@ def blog_list(request):
 
     return render(request, 'blogapp/blog_list.html', {'page': page, 'authors': authors})
 
-def blog_search(request):
+""" def blog_search(request):
     search_word = request.GET.get('search_word', '')
 
     # Search in title and content
@@ -38,7 +33,29 @@ def blog_search(request):
 
     authors = Author.objects.annotate(num_posts=Count('blogpost'))
 
-    return render(request, 'blogapp/blog_search.html', {'posts': posts, 'search_word': search_word, 'authors': authors})
+    return render(request, 'blogapp/blog_search.html', {'posts': posts, 'search_word': search_word, 'authors': authors}) """
+
+def blog_search(request):
+    search_word = request.GET.get('search_word', '')
+
+    # Search in title, content and author username
+    posts = BlogPost.objects.filter(Q(title__icontains=search_word) | Q(content__icontains=search_word) | Q(author__user__username__icontains=search_word))
+
+    authors = Author.objects.annotate(num_posts=Count('blogpost'))
+
+    # Paginator を使って投稿をページネーションします。
+    paginator = Paginator(posts, 5) # Show 10 posts per page
+    page_number = request.GET.get('page') or 1
+    page = paginator.get_page(page_number)
+
+    context = {
+        'page': page, # ここで投稿のページを渡します。
+        'search_word': search_word,
+        'authors': authors,
+    }
+
+    return render(request, 'blogapp/blog_search.html', context)
+
 
 def blog_detail(request, pk):
     post = BlogPost.objects.get(pk=pk)
@@ -88,20 +105,6 @@ def blog_post_create(request):
         form = BlogPostForm()
     return render(request, 'blogapp/blog_post_form.html', {'form': form})
 
-""" def author_posts(request, author_id):
-    author = get_object_or_404(Author, pk=author_id)
-    posts = BlogPost.objects.filter(author=author)
-    # 他の著者を取得します。
-    other_authors = Author.objects.exclude(id=author_id)
-    num_other_authors = other_authors.annotate(num_posts=Count('blogpost'))
-
-    context = {
-        'author': author,
-        'posts': posts,
-        'other_authors': num_other_authors,
-    }
-    
-    return render(request, 'blogapp/author_posts.html', context) """
 
 def author_posts(request, author_id):
     author = get_object_or_404(Author, pk=author_id)
@@ -123,7 +126,7 @@ def author_posts(request, author_id):
     return render(request, 'blogapp/author_posts.html', context)
 
 
-def posts_on_date(request, year, month, day):
+""" def posts_on_date(request, year, month, day):
     posts = BlogPost.objects.filter(
         date__year=year,
         date__month=month,
@@ -139,42 +142,33 @@ def posts_on_date(request, year, month, day):
         'day': day,
     }
 
-    return render(request, 'blogapp/posts_on_date.html', context)
+    return render(request, 'blogapp/posts_on_date.html', context) """
 
-""" def calendar_view(request, year=None, month=None):
-    if year is None or month is None:
-        now = datetime.now()
-        year = now.year
-        month = now.month
-    month_days = calendar.monthcalendar(year, month)
+def posts_on_date(request, year, month, day):
+    posts = BlogPost.objects.filter(
+        date__year=year,
+        date__month=month,
+        date__day=day,
+    )
+    author_ids = posts.values_list('author', flat=True)
+    authors = Author.objects.filter(id__in=author_ids).annotate(num_posts=Count('blogpost'))
 
-    if month == 1:
-        prev_year, prev_month = year - 1, 12
-    else:
-        prev_year, prev_month = year, month - 1
-
-    if month == 12:
-        next_year, next_month = year + 1, 1
-    else:
-        next_year, next_month = year, month + 1
-
-    # Handle previous and next year
-    prev_year = year - 1
-    next_year = year + 1
+    # Paginator を使って投稿をページネーションします。
+    paginator = Paginator(posts, 5) # Show 10 posts per page
+    page_number = request.GET.get('page') or 1
+    page = paginator.get_page(page_number)
 
     context = {
+        'page': page, # ここで投稿のページを渡します。
+        'authors': authors,
         'year': year,
         'month': month,
-        'month_days': month_days,
-        'prev_year': prev_year,
-        'prev_month': prev_month,
-        'next_year': next_year,
-        'next_month': next_month,
-        'prev_year': prev_year,
-        'next_year': next_year,
+        'day': day,
     }
 
-    return render(request, 'blogapp/calendar.html', context) """
+    return render(request, 'blogapp/posts_on_date.html', context)
+
+
 
 def calendar_view(request, year=None, month=None):
     if year is None or month is None:
