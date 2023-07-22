@@ -1,1 +1,4 @@
 /.history
+.env
+blogapp/__pycache__/
+*.pyc
