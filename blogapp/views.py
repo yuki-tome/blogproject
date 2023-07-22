@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import BlogPost, Author
-from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from .forms import BlogPostForm
 from django.db.models import Count, Q
@@ -14,7 +14,7 @@ def blog_list(request):
     authors = Author.objects.annotate(num_posts=Count('blogpost'))
     
     # Create a Paginator object
-    paginator = Paginator(posts, 5) # Show 10 posts per page
+    paginator = Paginator(posts, 5) # Show 5 posts per page
 
     # Get the page number from the query string
     # (if not provided, get the first page)
@@ -25,15 +25,6 @@ def blog_list(request):
 
     return render(request, 'blogapp/blog_list.html', {'page': page, 'authors': authors})
 
-""" def blog_search(request):
-    search_word = request.GET.get('search_word', '')
-
-    # Search in title and content
-    posts = BlogPost.objects.filter(Q(title__icontains=search_word) | Q(content__icontains=search_word) | Q(author__user__username__icontains=search_word))
-
-    authors = Author.objects.annotate(num_posts=Count('blogpost'))
-
-    return render(request, 'blogapp/blog_search.html', {'posts': posts, 'search_word': search_word, 'authors': authors}) """
 
 def blog_search(request):
     search_word = request.GET.get('search_word', '')
@@ -44,7 +35,7 @@ def blog_search(request):
     authors = Author.objects.annotate(num_posts=Count('blogpost'))
 
     # Paginator を使って投稿をページネーションします。
-    paginator = Paginator(posts, 5) # Show 10 posts per page
+    paginator = Paginator(posts, 5) # Show 5 posts per page
     page_number = request.GET.get('page') or 1
     page = paginator.get_page(page_number)
 
@@ -125,25 +116,6 @@ def author_posts(request, author_id):
     
     return render(request, 'blogapp/author_posts.html', context)
 
-
-""" def posts_on_date(request, year, month, day):
-    posts = BlogPost.objects.filter(
-        date__year=year,
-        date__month=month,
-        date__day=day,
-    )
-    author_ids = posts.values_list('author', flat=True)
-    authors = Author.objects.filter(id__in=author_ids).annotate(num_posts=Count('blogpost'))
-    context = {
-        'posts': posts,
-        'authors': authors,
-        'year': year,
-        'month': month,
-        'day': day,
-    }
-
-    return render(request, 'blogapp/posts_on_date.html', context) """
-
 def posts_on_date(request, year, month, day):
     posts = BlogPost.objects.filter(
         date__year=year,
@@ -154,7 +126,7 @@ def posts_on_date(request, year, month, day):
     authors = Author.objects.filter(id__in=author_ids).annotate(num_posts=Count('blogpost'))
 
     # Paginator を使って投稿をページネーションします。
-    paginator = Paginator(posts, 5) # Show 10 posts per page
+    paginator = Paginator(posts, 5) # Show 5 posts per page
     page_number = request.GET.get('page') or 1
     page = paginator.get_page(page_number)
 
